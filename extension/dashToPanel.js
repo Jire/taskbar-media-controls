@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: 2026 Jire
 
-// Adds media buttons to Dash to Panel's window-preview thumbnails, like the
-// thumbnail toolbar on the Windows taskbar.
+// Adds media buttons to Dash to Panel's window-preview thumbnails.
 //
 // Dash to Panel has no public API for this, so we wrap two methods of its
 // exported `Preview` class. Both have existed unchanged for years; if a
@@ -10,10 +9,12 @@
 // instead of breaking the panel.
 
 import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {ExtensionState} from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
+import {typeName} from './gtype.js';
 import {MediaButtons} from './widgets.js';
 
 const DTP_UUID = 'dash-to-panel@jderose9.github.com';
@@ -26,6 +27,7 @@ export class DashToPanelHook {
         this._manager = manager;
         this._bars = new Set();
         this._patched = null;
+        this._patching = false;
         this._destroyed = false;
         this._stateId = Main.extensionManager.connect('extension-state-changed',
             (mgr, ext) => {
@@ -95,7 +97,7 @@ export class DashToPanelHook {
         if (!bar) {
             bar = new PreviewBar(this._manager, preview);
             preview[BAR] = bar;
-            bar.add(preview);
+            preview.add_child(bar);
             this._bars.add(bar);
             bar.connect('destroy', () => {
                 this._bars.delete(bar);
@@ -121,27 +123,22 @@ export class DashToPanelHook {
 }
 
 /** Pill of media buttons overlaid on the bottom of one window thumbnail. */
-const PreviewBar = class {
+const PreviewBar = GObject.registerClass({GTypeName: typeName('PreviewBar')},
+class PreviewBar extends MediaButtons {
     constructor(manager, preview) {
-        this._manager = manager;
-        this._preview = preview;
-        this._window = null;
-
-        this.actor = new MediaButtons('tmc-preview-bar');
-        this.actor.set({
+        super('tmc-preview-bar');
+        this.set({
             x_expand: true,
             y_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.END,
             visible: false,
         });
-
-        this._managerId = manager.connect('players-changed', () => this._sync());
-        this.actor.connect('destroy', () => manager.disconnect(this._managerId));
-    }
-
-    add(preview) {
-        preview.add_child(this.actor);
+        this._manager = manager;
+        this._preview = preview;
+        this._window = null;
+        // Disconnected automatically when this actor is destroyed.
+        manager.connectObject('players-changed', () => this._sync(), this);
     }
 
     setWindow(window) {
@@ -151,8 +148,8 @@ const PreviewBar = class {
 
     _sync() {
         const player = this._window ? this._manager.findForWindow(this._window) : null;
-        this.actor.setPlayer(player);
-        this.actor.visible = !!player;
+        this.setPlayer(player);
+        this.visible = !!player;
         if (player)
             this._place();
     }
@@ -167,18 +164,6 @@ const PreviewBar = class {
         let below = 0;
         if (box && box.get_last_child() !== bin)
             below = box.get_last_child().height / scale;
-        this.actor.style = `margin-bottom: ${Math.round(padding + below + 6)}px;`;
+        this.style = `margin-bottom: ${Math.round(padding + below + 6)}px;`;
     }
-
-    containsActor(actor) {
-        return this.actor.containsActor(actor);
-    }
-
-    connect(...args) {
-        return this.actor.connect(...args);
-    }
-
-    destroy() {
-        this.actor.destroy();
-    }
-};
+});

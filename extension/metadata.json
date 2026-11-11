@@ -1,8 +1,7 @@
 {
   "uuid": "taskbar-media-controls@jire.github.io",
   "name": "Taskbar Media Controls",
-  "description": "Windows-style media controls for GNOME.\n\n• Previous / play-pause / next buttons on Dash to Panel's window-preview thumbnails\n• A media card with album art right under the volume slider in Quick Settings\n\nWorks with any MPRIS player: Spotify, browsers, VLC, Rhythmbox and more.",
+  "description": "Adds media controls in two places:\n\n* Previous / play-pause / next buttons on window-preview thumbnails (requires Dash to Panel)\n* A media card with album art directly under the volume slider in Quick Settings\n\nWorks with any media player that supports MPRIS.",
   "url": "https://github.com/Jire/taskbar-media-controls",
-  "shell-version": ["46", "47", "48", "49", "50", "51"],
-  "version": 1
+  "shell-version": ["46", "47", "48", "49", "50", "51"]
 }

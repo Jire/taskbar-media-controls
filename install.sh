@@ -21,6 +21,9 @@ ZIP_NAME="$UUID.shell-extension.zip"
 MIN_SHELL=46
 EXT_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions"
 EXT_DIR="$EXT_ROOT/$UUID"
+# Optional developer helper (see "Load without logging out" in the README).
+HELPER_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/taskbar-media-controls"
+RAW_URL="https://raw.githubusercontent.com/$REPO"
 
 if [ -t 1 ]; then
     BOLD=$'\e[1m' GREEN=$'\e[32m' YELLOW=$'\e[33m' RED=$'\e[31m' RESET=$'\e[0m'
@@ -125,12 +128,24 @@ dash_to_panel_hint() {
     echo "    or: https://extensions.gnome.org/extension/1160/dash-to-panel/"
 }
 
+install_helper() {
+    local ref="main" here
+    [ "$VERSION" = latest ] || ref="$VERSION"
+    here=$(dirname "${BASH_SOURCE[0]:-.}")
+    mkdir -p "$HELPER_DIR"
+    if [ -n "$LOCAL_ZIP" ] && [ -f "$here/scripts/hot-load.js" ]; then
+        cp "$here/scripts/hot-load.js" "$HELPER_DIR/hot-load.js"
+    elif ! download "$RAW_URL/$ref/scripts/hot-load.js" "$HELPER_DIR/hot-load.js"; then
+        warn "couldn't download the optional reload helper; everything else is installed"
+    fi
+}
+
 uninstall() {
     disable_extension
     if have gnome-extensions && gnome-extensions uninstall "$UUID" >/dev/null 2>&1; then
         :
     fi
-    rm -rf "$EXT_DIR"
+    rm -rf "$EXT_DIR" "$HELPER_DIR"
     info "Removed $UUID."
     echo "  It stays active in the current session until you log out."
     exit 0
@@ -203,6 +218,7 @@ fi
 [ -f "$EXT_DIR/metadata.json" ] || die "install failed: $EXT_DIR/metadata.json is missing"
 
 enable_extension
+install_helper
 
 if [ "$(gsettings get org.gnome.shell disable-user-extensions 2>/dev/null)" = "true" ]; then
     warn "user extensions are switched off on this system. Turn them on in the Extensions app,"

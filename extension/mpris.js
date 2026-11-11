@@ -46,7 +46,6 @@ const PlayerProxy = Gio.DBusProxy.makeProxyWrapper(`
 
 function newProxy(Wrapper, busName, cancellable) {
     return new Promise((resolve, reject) => {
-        // eslint-disable-next-line no-new
         new Wrapper(Gio.DBus.session, busName, MPRIS_PATH, (proxy, error) => {
             if (error)
                 reject(error);
@@ -72,7 +71,7 @@ function dbusCall(method, params, replyType, cancellable) {
     });
 }
 
-function ignoreCancel(e) {
+function logUnlessCancelled(e) {
     if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
         console.warn(`[taskbar-media-controls] ${e.message}`);
 }
@@ -98,6 +97,7 @@ export const MprisPlayer = GObject.registerClass({
         this.canControl = false;
         this.lastPlayed = 0;
         this.ready = false;
+        this._warnedMetadata = false;
         this._cancellable = new Gio.Cancellable();
     }
 
@@ -144,7 +144,10 @@ export const MprisPlayer = GObject.registerClass({
             for (const [k, v] of Object.entries(p.Metadata ?? {}))
                 meta[k] = v.deepUnpack();
         } catch (e) {
-            console.warn(`[taskbar-media-controls] bad metadata from ${this.busName}: ${e}`);
+            // Warn once; a buggy player may resend the same metadata often.
+            if (!this._warnedMetadata)
+                console.warn(`[taskbar-media-controls] bad metadata from ${this.busName}: ${e}`);
+            this._warnedMetadata = true;
         }
 
         this.title = typeof meta['xesam:title'] === 'string' ? meta['xesam:title'] : '';
@@ -179,22 +182,22 @@ export const MprisPlayer = GObject.registerClass({
     }
 
     playPause() {
-        this._player?.PlayPauseAsync().catch(ignoreCancel);
+        this._player?.PlayPauseAsync().catch(logUnlessCancelled);
     }
 
     next() {
-        this._player?.NextAsync().catch(ignoreCancel);
+        this._player?.NextAsync().catch(logUnlessCancelled);
     }
 
     previous() {
-        this._player?.PreviousAsync().catch(ignoreCancel);
+        this._player?.PreviousAsync().catch(logUnlessCancelled);
     }
 
     raise() {
         if (this.app)
             this.app.activate();
         else if (this._root?.CanRaise)
-            this._root.RaiseAsync().catch(ignoreCancel);
+            this._root.RaiseAsync().catch(logUnlessCancelled);
     }
 
     destroy() {
@@ -238,7 +241,7 @@ export const MprisManager = GObject.registerClass({
             .then(([names]) => names
                 .filter(n => n.startsWith(MPRIS_PREFIX))
                 .forEach(n => this._add(n)))
-            .catch(ignoreCancel);
+            .catch(logUnlessCancelled);
     }
 
     /** Usable players, the playing / most recently played one first. */
@@ -267,9 +270,9 @@ export const MprisManager = GObject.registerClass({
             return;
         const player = new MprisPlayer(busName);
         this._players.set(busName, player);
-        player.connect('changed', () => this.emit('players-changed'));
+        player.connectObject('changed', () => this.emit('players-changed'), this);
         player.init().catch(e => {
-            ignoreCancel(e);
+            logUnlessCancelled(e);
             this._remove(busName);
         });
     }
@@ -279,6 +282,7 @@ export const MprisManager = GObject.registerClass({
         if (!player)
             return;
         this._players.delete(busName);
+        player.disconnectObject(this);
         player.destroy();
         this.emit('players-changed');
     }
@@ -286,8 +290,10 @@ export const MprisManager = GObject.registerClass({
     destroy() {
         this._cancellable.cancel();
         Gio.DBus.session.signal_unsubscribe(this._subId);
-        for (const p of this._players.values())
+        for (const p of this._players.values()) {
+            p.disconnectObject(this);
             p.destroy();
+        }
         this._players.clear();
     }
 });

@@ -4,6 +4,7 @@
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
+import Pango from 'gi://Pango';
 import St from 'gi://St';
 
 import {typeName} from './gtype.js';
@@ -52,10 +53,6 @@ class MediaButtons extends St.BoxLayout {
         button.connect('clicked', () => callback());
         this.add_child(button);
         return button;
-    }
-
-    get player() {
-        return this._player;
     }
 
     setPlayer(player) {
@@ -123,7 +120,7 @@ class MediaCard extends St.BoxLayout {
         this._title = new St.Label({style_class: 'tmc-title'});
         this._artist = new St.Label({style_class: 'tmc-artist'});
         for (const l of [this._appName, this._title, this._artist])
-            l.clutter_text.ellipsize = 3; // Pango.EllipsizeMode.END
+            l.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         text.add_child(appRow);
         text.add_child(this._title);
         text.add_child(this._artist);

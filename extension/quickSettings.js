@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Jire
 
 // Puts media cards in the Quick Settings menu, directly under the output
-// volume slider (like the media flyout attached to the Windows volume panel).
+// volume slider.
 
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -10,6 +10,8 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {MediaCardStack} from './widgets.js';
 
 const N_COLUMNS = 2;
+const RETRY_MS = 250;
+const MAX_TRIES = 20;
 
 export class QuickSettingsHook {
     constructor(manager) {
@@ -21,14 +23,18 @@ export class QuickSettingsHook {
 
     _tryInsert() {
         const qs = Main.panel.statusArea.quickSettings;
-        // Shell builds the indicators asynchronously at startup.
-        if (!qs?.menu || (!qs._volumeOutput && this._tries < 20)) {
-            this._tries++;
-            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+        // The shell creates its Quick Settings items asynchronously, so right
+        // after login they may not exist yet. Retry for a few seconds.
+        if (!qs?._volumeOutput && this._tries++ < MAX_TRIES) {
+            this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RETRY_MS, () => {
                 this._timeoutId = 0;
                 this._tryInsert();
                 return GLib.SOURCE_REMOVE;
             });
+            return;
+        }
+        if (!qs?.menu) {
+            console.warn('[taskbar-media-controls] Quick Settings menu not found');
             return;
         }
 

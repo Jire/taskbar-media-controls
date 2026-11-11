@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: 2026 Jire
 
-// Loads (or reloads) this extension into the running GNOME Shell without
-// logging out. Not part of the extension itself; it is only run by hand.
+// Development helper, not part of the extension. Loads (or reloads) the
+// installed extension into the running GNOME Shell without logging out.
+// install.sh puts this file in ~/.local/share/taskbar-media-controls/.
 // Run it from Looking Glass (Alt+F2, type "lg", Enter) with:
 //
-//   eval(new TextDecoder().decode(imports.gi.GLib.file_get_contents(imports.gi.GLib.get_user_data_dir() + '/gnome-shell/extensions/taskbar-media-controls@jire.github.io/hot-load.js')[1]))
+//   eval(new TextDecoder().decode(imports.gi.GLib.file_get_contents(imports.gi.GLib.get_user_data_dir() + '/taskbar-media-controls/hot-load.js')[1]))
 //
 // GJS caches ES modules by URL, so reloading in place would keep running the
 // old code. Instead this copies the installed extension to a fresh folder

@@ -23,8 +23,8 @@ Point them to the one-line installer in [README.md](README.md#install). It insta
 | `extension/widgets.js` | Buttons, Quick Settings card and card stack |
 | `extension/quickSettings.js` | Inserts the card stack under the output-volume slider |
 | `extension/dashToPanel.js` | Wraps `Preview.prototype.assignWindow` / `_onButtonReleaseEvent` from Dash to Panel's `windowPreview.js` |
-| `extension/gtype.js` | Per-load GType names so the extension can be hot-reloaded |
-| `extension/hot-load.js` | Looking Glass loader for reloading without logging out (run by hand, not imported) |
+| `extension/gtype.js` | GType names suffixed with a hash of the module URL, so a dev copy can be hot-loaded beside the installed one |
+| `scripts/hot-load.js` | Looking Glass loader for reloading without logging out. Not shipped in the extension zip; `install.sh` puts it in `~/.local/share/taskbar-media-controls/` |
 | `install.sh` | User-facing installer (curl/wget pipe), also `--uninstall`, `--version`, `--zip` |
 | `scripts/build.sh` | Builds `dist/<uuid>.shell-extension.zip` |
 | `.github/workflows/ci.yml` | Syntax check, ShellCheck, build; publishes a release on `v*` tags |
@@ -37,11 +37,12 @@ Point them to the one-line installer in [README.md](README.md#install). It insta
 - Give every `GObject.registerClass` a `GTypeName: typeName('…')` from `gtype.js`.
 - Keep GNOME 46–51 compatibility: use the existing shims (`setVertical`, `STATE_ACTIVE`) rather than newer-only APIs.
 - Start new source files with the SPDX header used in the existing files.
+- [docs/code-walkthrough.md](docs/code-walkthrough.md) explains every shipped file. Keep it accurate when you change behaviour.
 
 ## Checking changes
 
 ```bash
-for f in extension/*.js; do node --input-type=module --check < "$f"; done
+npx --yes eslint@9 .
 shellcheck install.sh scripts/*.sh
 scripts/build.sh && ./install.sh --zip dist/*.shell-extension.zip
 ```
@@ -50,7 +51,9 @@ Then reload with the Looking Glass line from the README. Reloading the user's li
 
 ## Releasing
 
-Bump `version` in `extension/metadata.json`, commit, then tag and push (`git tag -a vN -m vN && git push origin vN`). CI builds the zip and attaches it to the GitHub release. The installer always fetches `releases/latest`.
+Tag and push (`git tag -a vN -m vN && git push origin vN`). CI builds the zip and attaches it to the GitHub release, and the installer always fetches `releases/latest`. Don't add a `version` key to `metadata.json`: extensions.gnome.org sets it. The same zip is what gets uploaded to extensions.gnome.org; see [docs/code-walkthrough.md](docs/code-walkthrough.md#publishing-to-extensionsgnomeorg).
+
+Everything shipped in `extension/` must pass the [extensions.gnome.org review guidelines](https://gjs.guide/extensions/review-guidelines/review-guidelines.html). Keep it free of build or dev files, and don't add logging during normal operation.
 
 ## Supporting the project
 

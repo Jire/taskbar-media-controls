@@ -61,7 +61,7 @@ GNOME's built-in Looking Glass console can load the extension into the running s
 2. Paste this line into the prompt at the bottom and press <kbd>Enter</kbd>:
 
    ```js
-   eval(new TextDecoder().decode(imports.gi.GLib.file_get_contents(imports.gi.GLib.get_user_data_dir() + '/gnome-shell/extensions/taskbar-media-controls@jire.github.io/hot-load.js')[1]))
+   eval(new TextDecoder().decode(imports.gi.GLib.file_get_contents(imports.gi.GLib.get_user_data_dir() + '/taskbar-media-controls/hot-load.js')[1]))
    ```
 
 3. Press <kbd>Esc</kbd>. A notification confirms it loaded.
@@ -93,6 +93,8 @@ curl -fsSL https://raw.githubusercontent.com/Jire/taskbar-media-controls/main/in
 - **[`quickSettings.js`](extension/quickSettings.js)** inserts a card per active player (up to three, the playing one first) directly under the output-volume slider.
 - **[`dashToPanel.js`](extension/dashToPanel.js)** wraps two methods of Dash to Panel's window-preview class to add a button bar to thumbnails of windows that belong to a media player. It matches by app first, then by process ID. Dash to Panel has no public API for this. If a future Dash to Panel release changes those methods, the hook switches itself off and logs a warning instead of breaking the panel.
 
+For a file-by-file explanation, including exactly what is touched in GNOME Shell and Dash to Panel and how `disable()` undoes it, see [docs/code-walkthrough.md](docs/code-walkthrough.md).
+
 Clicking the art or title in the Quick Settings card brings the player to the front. Clicking preview buttons controls playback without switching windows, and the preview stays open.
 
 ## Build from source
@@ -100,6 +102,7 @@ Clicking the art or title in the Quick Settings card brings the player to the fr
 ```bash
 git clone https://github.com/Jire/taskbar-media-controls.git
 cd taskbar-media-controls
+npx --yes eslint@9 .                               # lint
 scripts/build.sh                                   # creates dist/<uuid>.shell-extension.zip
 ./install.sh --zip dist/taskbar-media-controls@jire.github.io.shell-extension.zip
 ```
