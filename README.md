@@ -12,6 +12,8 @@ It works with **any media player that supports MPRIS**, the standard Linux media
   <img src="docs/quick-settings.png" alt="Media card under the volume slider in Quick Settings" width="420">
 </p>
 
+**If this is useful to you, please ⭐ [star the repo](https://github.com/Jire/taskbar-media-controls) and [follow @Jire on GitHub](https://github.com/Jire) for more free tools like this.**
+
 ## Install
 
 Paste the command for your distro into a terminal. Don't use `sudo`: it installs into your home folder.
@@ -113,6 +115,14 @@ busctl --user list | grep org.mpris.MediaPlayer2                   # players GNO
 ```
 
 If your player doesn't appear in that last list, it doesn't expose MPRIS, and no GNOME media controls (including the built-in ones) can see it.
+
+## Support
+
+This is free software, made in my spare time. The best ways to support it:
+
+- ⭐ [Star the repo](https://github.com/Jire/taskbar-media-controls), which helps other people find it.
+- 👤 [Follow @Jire on GitHub](https://github.com/Jire) to hear about more free tools like this.
+- 🐛 [Report bugs or request features](https://github.com/Jire/taskbar-media-controls/issues), especially if you've tried it on a GNOME version other than 51.
 
 ## License
 

@@ -216,3 +216,6 @@ else
 fi
 reload_hint
 dash_to_panel_hint
+echo
+echo "  Enjoying it? Star the repo and follow @Jire on GitHub for more free tools:"
+echo "    https://github.com/Jire/taskbar-media-controls"
