@@ -1,0 +1,1 @@
+journalctl --user -b _COMM=gnome-shell -g taskbar-media-controls 

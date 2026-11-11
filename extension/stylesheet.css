@@ -1,0 +1,115 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* SPDX-FileCopyrightText: 2026 Jire */
+
+/* ---- shared buttons ---- */
+.tmc-buttons {
+  spacing: 4px;
+}
+
+.tmc-control {
+  padding: 8px;
+  border-radius: 999px;
+  color: inherit;
+  transition-duration: 100ms;
+}
+
+.tmc-control:hover,
+.tmc-control:focus {
+  background-color: rgba(127, 127, 127, 0.25);
+}
+
+.tmc-control:active {
+  background-color: rgba(127, 127, 127, 0.4);
+}
+
+.tmc-control:insensitive {
+  color: rgba(127, 127, 127, 0.6);
+}
+
+.tmc-control-icon {
+  icon-size: 16px;
+}
+
+.tmc-control.tmc-play {
+  background-color: rgba(127, 127, 127, 0.22);
+}
+
+.tmc-control.tmc-play:hover {
+  background-color: rgba(127, 127, 127, 0.35);
+}
+
+/* ---- Quick Settings card ---- */
+.tmc-stack {
+  spacing: 6px;
+}
+
+.tmc-card {
+  padding: 6px 8px 6px 6px;
+  border-radius: 18px;
+  background-color: rgba(127, 127, 127, 0.15);
+  spacing: 6px;
+}
+
+.tmc-card-info {
+  border-radius: 12px;
+  padding: 2px;
+}
+
+.tmc-card-info:hover,
+.tmc-card-info:focus {
+  background-color: rgba(127, 127, 127, 0.12);
+}
+
+.tmc-card-info-box {
+  spacing: 12px;
+}
+
+.tmc-art {
+  border-radius: 10px;
+}
+
+.tmc-text {
+  spacing: 1px;
+}
+
+.tmc-app-row {
+  spacing: 5px;
+}
+
+.tmc-app-name {
+  font-size: 8.5pt;
+  color: rgba(127, 127, 127, 1);
+}
+
+.tmc-title {
+  font-weight: bold;
+}
+
+.tmc-artist {
+  font-size: 9.5pt;
+}
+
+/* ---- Dash to Panel window preview ---- */
+.tmc-preview-bar {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background-color: rgba(20, 20, 20, 0.82);
+  spacing: 2px;
+}
+
+.tmc-preview-bar .tmc-control {
+  color: #ffffff;
+  padding: 7px;
+}
+
+.tmc-preview-bar .tmc-control:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.tmc-preview-bar .tmc-control.tmc-play {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.tmc-preview-bar .tmc-control:insensitive {
+  color: rgba(255, 255, 255, 0.35);
+}
