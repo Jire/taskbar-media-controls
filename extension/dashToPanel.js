@@ -17,7 +17,7 @@ import {ExtensionState} from 'resource:///org/gnome/shell/misc/extensionUtils.js
 import {typeName} from './gtype.js';
 import {MediaButtons} from './widgets.js';
 
-const DTP_UUID = 'dash-to-panel@jderose9.github.com';
+export const DTP_UUID = 'dash-to-panel@jderose9.github.com';
 // Renamed from ENABLED to ACTIVE in GNOME 47.
 const STATE_ACTIVE = ExtensionState.ACTIVE ?? ExtensionState.ENABLED;
 const BAR = Symbol('tmcBar');

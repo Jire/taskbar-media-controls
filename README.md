@@ -3,7 +3,7 @@
 Windows-style media controls for GNOME Shell.
 
 - **Taskbar hover previews:** previous / play-pause / next buttons on the window thumbnail when you hover a music app in [Dash to Panel](https://extensions.gnome.org/extension/1160/dash-to-panel/), like the Windows taskbar.
-- **Quick Settings:** a media card with album art, title and artist right under the volume slider, like the media flyout next to the Windows volume panel.
+- **Quick Settings:** a media card with album art, title and artist right under the volume slider, like the media flyout next to the Windows volume panel. With Dash to Panel on several monitors, every monitor's Quick Settings menu gets one.
 
 It works with **any media player that supports MPRIS**, the standard Linux media-control interface: Spotify, Firefox, Chrome/Chromium, VLC, Rhythmbox, mpv (with `mpv-mpris`) and more. It never modifies the players themselves, so app updates (Spotify's included) don't break it.
 

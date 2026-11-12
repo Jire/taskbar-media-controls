@@ -8,6 +8,8 @@ A guided read of everything that ships in the extension zip (`extension/`), for 
 enable()
  ├─ MprisManager            watches the session bus for MPRIS players
  ├─ QuickSettingsHook       adds a MediaCardStack under the volume slider
+ │                          in every Quick Settings menu (one per monitor
+ │                          with Dash to Panel)
  └─ DashToPanelHook         wraps 2 methods on Dash to Panel's Preview class
 
 disable()                   reverse order of the above; see each file below
@@ -49,9 +51,13 @@ Every `connect` on a player or manager is disconnected in the widget's `destroy`
 
 ## `quickSettings.js`: Quick Settings card
 
-The shell builds its Quick Settings items asynchronously, so on login `Main.panel.statusArea.quickSettings._volumeOutput` may not exist yet. The hook retries every 250 ms, up to 20 times, then falls back to appending the card at the end.
+**Which menus.** GNOME has one Quick Settings menu, `Main.panel.statusArea.quickSettings`. Dash to Panel gives each extra monitor's panel its own copy of it. It lists them in `global.dashToPanel.panels[i].statusArea.quickSettings` and emits `panels-created` on `global.dashToPanel` whenever it rebuilds them, for example when a monitor is plugged in or some of its settings change. That object is what Dash to Panel provides for other extensions to add to its secondary panels. The hook adds a card to every menu it finds, re-checks on `panels-created`, and re-attaches to `global.dashToPanel` when Dash to Panel is turned off and on (`extension-state-changed`). Without Dash to Panel, only the main menu is used.
 
-It places the card directly after the output-volume slider using the public `QuickSettingsMenu.insertItemBefore(item, sibling, colSpan)`. `_volumeOutput` is the one private field read here, and only to find that sibling. `destroy()` removes the retry timeout and destroys the card stack, which removes it from the menu.
+**Timing.** Each Quick Settings builds its items asynchronously, so at login, or for a new monitor's copy, `_volumeOutput` may not exist yet. The hook retries each menu every 250 ms, up to 20 times, then falls back to appending the card at the end.
+
+**Placement.** The card goes directly after the output-volume slider, using the public `QuickSettingsMenu.insertItemBefore(item, sibling, colSpan)`. `_volumeOutput` is the one private field read here, and only to find that sibling.
+
+**Cleanup.** Cards are tracked per menu, so a menu never gets two. When Dash to Panel discards a menu, the card is destroyed with it and dropped from tracking. `destroy()` disconnects both signals, removes pending retries, and destroys every remaining card.
 
 ## `dashToPanel.js`: window-preview buttons
 
